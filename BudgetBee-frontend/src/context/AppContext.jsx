@@ -18,9 +18,14 @@ export const AppContextProvider = ({ children }) => {
     }
   }, [user]);
 
+  const clearUser = () => {
+    setUser(null);
+  };
+
   const contextValue = {
     user,
     setUser,
+    clearUser
   };
 
   return (

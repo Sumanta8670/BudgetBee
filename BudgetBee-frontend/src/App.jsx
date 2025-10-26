@@ -1,4 +1,4 @@
-import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import Login from "./pages/Login.jsx";
 import Register from "./pages/Register.jsx";
 import Category from "./pages/Category.jsx";
@@ -14,6 +14,7 @@ const App = () => {
       <Toaster />
       <BrowserRouter>
         <Routes>
+          <Route path="/" element={<Root />} />
           <Route path="/dashboard" element={<Home />} />
           <Route path="/login" element={<Login />} />
           <Route path="/register" element={<Register />} />
@@ -24,6 +25,15 @@ const App = () => {
         </Routes>
       </BrowserRouter>
     </>
+  );
+};
+
+const Root = () => {
+  const isAuthenticated = !!localStorage.getItem("token");
+  return isAuthenticated ? (
+    <Navigate to="/dashboard" />
+  ) : (
+    <Navigate to="/login" />
   );
 };
 export default App;

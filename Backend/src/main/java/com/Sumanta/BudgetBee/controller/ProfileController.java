@@ -42,8 +42,9 @@ public class ProfileController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message",e.getMessage()));
         }
     }
-    @GetMapping("/test")
-    public String test() {
-        return "Test Successful";
+    @GetMapping("/profile")
+    public ResponseEntity<ProfileDTO> getPublicProfile() {
+        ProfileDTO profileDTO = profileService.getPublicProfile(null);
+        return ResponseEntity.ok(profileDTO);
     }
 }

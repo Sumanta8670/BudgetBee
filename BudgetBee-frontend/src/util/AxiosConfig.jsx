@@ -21,9 +21,9 @@ const excludeEndpoints = [
 //request interceptor
 AxiosConfig.interceptors.request.use(
   (config) => {
-    const shouldSkipToken = excludeEndpoints.some((endpoint) => {
-      config.url?.includes(endpoint);
-    });
+    const shouldSkipToken = excludeEndpoints.some(
+      (endpoint) => config.url?.includes(endpoint) // Added return statement
+    );
 
     if (!shouldSkipToken) {
       const accessToken = localStorage.getItem("token");
@@ -38,20 +38,15 @@ AxiosConfig.interceptors.request.use(
   }
 );
 
-//response interceptor
+//response interceptor (if needed for token refresh, etc.)
 AxiosConfig.interceptors.response.use(
-  (response) => {
-    return response;
-  },
+  (response) => response, // Simply return successful responses
   (error) => {
-    if (error.response) {
-      if (error.response.status === 401) {
-        window.location.href = "/login";
-      } else if (error.response.status === 500) {
-        console.error("Server error, please try again later.");
-      }
-    } else if (error.code === "ECONNABORTED") {
-      console.error("Request timed out, please try again.");
+    // Handle specific error cases here if needed
+    // For example, redirect to login on 401 Unauthorized
+    if (error.response?.status === 401) {
+      localStorage.removeItem("token");
+      window.location.href = "/login";
     }
     return Promise.reject(error);
   }
