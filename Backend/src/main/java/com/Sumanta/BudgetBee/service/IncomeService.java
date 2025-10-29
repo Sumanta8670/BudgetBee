@@ -42,6 +42,13 @@ public class IncomeService {
         return list.stream().map(this::toDTO).toList();
     }
 
+    //Retrieve all incomes for current user (for Excel/Email)
+    public List<IncomeDTO> getAllIncomesForCurrentUser() {
+        ProfileEntity profile = profileService.getCurrentProfile();
+        List<IncomeEntity> list = incomeRepository.findByProfileIdOrderByDateDesc(profile.getId());
+        return list.stream().map(this::toDTO).toList();
+    }
+
     //Delete incomes by id for current user
     public void deleteIncomeById(Long incomeId){
         ProfileEntity profile = profileService.getCurrentProfile();
