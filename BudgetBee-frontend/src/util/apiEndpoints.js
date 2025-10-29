@@ -10,6 +10,16 @@ export const API_ENDPOINTS = {
   HEALTH: "/health",
   GET_USER_INFO: "/profile",
   GET_ALL_CATEGORIES: "/categories",
-  ADD_CATEGORY: "/category",
+  ADD_CATEGORY: "/categories",
+  UPDATE_CATEGORY: (categoryId) => `/categories/${categoryId}`,
+  GET_ALL_CATEGORIES_BY_TYPE: (type) => `/categories/${type}`,
+  GET_ALL_INCOMES: "/incomes",
+  ADD_INCOME: "/incomes",
+  DELETE_INCOME: (incomeId) => `/incomes/${incomeId}`,
+  UPDATE_INCOME: (incomeId) => `/incomes/${incomeId}`,
+  INCOME_EXCEL_DOWNLOAD: "excel/download/income",
+  GET_ALL_EXPENSES: "/expenses",
+  ADD_EXPENSE: "/expenses",
+  UPDATE_EXPENSE: (expenseId) => `/expenses/${expenseId}`,
   UPLOAD_IMAGE: `https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD_NAME}/image/upload`
 };
