@@ -147,8 +147,16 @@ const Income = () => {
     }
   };
 
-  const handleEmailIncomeDetails = () => {
-    console.log("Email income details");
+  const handleEmailIncomeDetails = async () => {
+    try {
+      const response = await AxiosConfig.get(API_ENDPOINTS.EMAIL_INCOME);
+      if (response.status === 200) {
+        toast.success("Email sent successfully");
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      toast.error(error.response?.data?.message || "Failed to send email.");
+    }
   };
 
   useEffect(() => {
