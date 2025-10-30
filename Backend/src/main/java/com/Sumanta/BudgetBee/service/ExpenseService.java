@@ -9,6 +9,7 @@ import com.Sumanta.BudgetBee.repository.ExpenseRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -22,6 +23,7 @@ public class ExpenseService {
     private final ProfileService profileService;
 
     // Adds a new expense to the database
+    @Transactional
     public ExpenseDTO addExpense(ExpenseDTO dto){
         ProfileEntity profile = profileService.getCurrentProfile();
         CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
@@ -32,6 +34,7 @@ public class ExpenseService {
     }
 
     //Retrieve all expenses for current month/based on the start date and end date
+    @Transactional(readOnly = true)
     public List<ExpenseDTO> getCurrentMonthExpensesForCurrentUser() {
         ProfileEntity profile = profileService.getCurrentProfile();
         LocalDate now = LocalDate.now();
@@ -42,6 +45,7 @@ public class ExpenseService {
     }
 
     //Retrieve all incomes for current user (for Excel/Email)
+    @Transactional(readOnly = true)
     public List<ExpenseDTO> getAllExpensesForCurrentUser() {
         ProfileEntity profile = profileService.getCurrentProfile();
         List<ExpenseEntity> list = expenseRepository.findByProfileIdOrderByDateDesc(profile.getId());
@@ -49,6 +53,7 @@ public class ExpenseService {
     }
 
     //Delete expense by id for current user
+    @Transactional
     public void deleteExpenseById(Long expenseId){
         ProfileEntity profile = profileService.getCurrentProfile();
         ExpenseEntity entity = expenseRepository.findById(expenseId)
@@ -60,6 +65,7 @@ public class ExpenseService {
     }
 
     //Get latest 10 expenses for current user
+    @Transactional(readOnly = true)
     public List<ExpenseDTO> getLatest10ExpensesForCurrentUser(){
         ProfileEntity profile = profileService.getCurrentProfile();
         List<ExpenseEntity> list = expenseRepository.findTop10ByProfileIdOrderByDateDesc(profile.getId());
@@ -67,6 +73,7 @@ public class ExpenseService {
     }
 
     //Get total expenses for current user
+    @Transactional(readOnly = true)
     public BigDecimal getTotalExpensesForCurrentUser() {
         ProfileEntity profile = profileService.getCurrentProfile();
         BigDecimal total = expenseRepository.findTotalExpenseByProfileId(profile.getId());
@@ -74,6 +81,7 @@ public class ExpenseService {
     }
 
     //filter expenses
+    @Transactional(readOnly = true)
     public List<ExpenseDTO> filterExpenses(LocalDate startDate, LocalDate endDate, String keyword, Sort sort){
         ProfileEntity profile = profileService.getCurrentProfile();
         List<ExpenseEntity> list = expenseRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(profile.getId(), startDate, endDate, keyword, sort);
@@ -81,6 +89,7 @@ public class ExpenseService {
     }
 
     //Notifications
+    @Transactional(readOnly = true)
     public List<ExpenseDTO> getExpensesForUserOnDate(Long profileId, LocalDate date){
         List<ExpenseEntity> list = expenseRepository.findByProfileIdAndDate(profileId, date);
         return list.stream().map(this::toDTO).toList();

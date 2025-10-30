@@ -10,6 +10,7 @@ import com.Sumanta.BudgetBee.repository.IncomeRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -23,6 +24,7 @@ public class IncomeService {
     private final ProfileService profileService;
 
     // Adds a new income to the database
+    @Transactional
     public IncomeDTO addIncome(IncomeDTO dto){
         ProfileEntity profile = profileService.getCurrentProfile();
         CategoryEntity category = categoryRepository.findById(dto.getCategoryId())
@@ -33,6 +35,7 @@ public class IncomeService {
     }
 
     //Retrieve all incomes for current month/based on the start date and end date
+    @Transactional(readOnly = true)
     public List<IncomeDTO> getCurrentMonthIncomesForCurrentUser() {
         ProfileEntity profile = profileService.getCurrentProfile();
         LocalDate now = LocalDate.now();
@@ -43,6 +46,7 @@ public class IncomeService {
     }
 
     //Retrieve all incomes for current user (for Excel/Email)
+    @Transactional(readOnly = true)
     public List<IncomeDTO> getAllIncomesForCurrentUser() {
         ProfileEntity profile = profileService.getCurrentProfile();
         List<IncomeEntity> list = incomeRepository.findByProfileIdOrderByDateDesc(profile.getId());
@@ -50,6 +54,7 @@ public class IncomeService {
     }
 
     //Delete incomes by id for current user
+    @Transactional
     public void deleteIncomeById(Long incomeId){
         ProfileEntity profile = profileService.getCurrentProfile();
         IncomeEntity entity = incomeRepository.findById(incomeId)
@@ -61,6 +66,7 @@ public class IncomeService {
     }
 
     //Get latest 10 incomes for current user
+    @Transactional(readOnly = true)
     public List<IncomeDTO> getLatest10IncomesForCurrentUser(){
         ProfileEntity profile = profileService.getCurrentProfile();
         List<IncomeEntity> list = incomeRepository.findTop10ByProfileIdOrderByDateDesc(profile.getId());
@@ -68,6 +74,7 @@ public class IncomeService {
     }
 
     //Get total incomes for current user
+    @Transactional(readOnly = true)
     public BigDecimal getTotalIncomesForCurrentUser() {
         ProfileEntity profile = profileService.getCurrentProfile();
         BigDecimal total = incomeRepository.findTotalIncomeByProfileId(profile.getId());
@@ -75,6 +82,7 @@ public class IncomeService {
     }
 
     //filter incomes
+    @Transactional(readOnly = true)
     public List<IncomeDTO> filterIncomes(LocalDate startDate, LocalDate endDate, String keyword, Sort sort){
         ProfileEntity profile = profileService.getCurrentProfile();
         List<IncomeEntity> list = incomeRepository.findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(profile.getId(), startDate, endDate, keyword, sort);

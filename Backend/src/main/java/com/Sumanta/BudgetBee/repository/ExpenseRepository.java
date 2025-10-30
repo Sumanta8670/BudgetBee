@@ -2,6 +2,7 @@ package com.Sumanta.BudgetBee.repository;
 
 import com.Sumanta.BudgetBee.entity.ExpenseEntity;
 import org.springframework.data.domain.Sort;
+import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -12,9 +13,11 @@ import java.util.List;
 
 public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long> {
     //select * from expenses where profile_id = ?1 order by date desc
+    @EntityGraph(attributePaths = {"category", "profile"})
     List<ExpenseEntity> findByProfileIdOrderByDateDesc(Long profileId);
 
     //select * from expenses where profile_id = ?1 order by date desc limit 10
+    @EntityGraph(attributePaths = {"category", "profile"})
     List<ExpenseEntity> findTop10ByProfileIdOrderByDateDesc(Long profileId);
 
     //Get total expense amount for a profile
@@ -22,6 +25,7 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long> {
     BigDecimal findTotalExpenseByProfileId(@Param("profileId") Long profileId);
 
     //select * from expenses where profile_id = ?1 and date between ?2 and ?3 and name like %?4%
+    @EntityGraph(attributePaths = {"category", "profile"})
     List<ExpenseEntity> findByProfileIdAndDateBetweenAndNameContainingIgnoreCase(
             Long profileId,
             LocalDate startDate,
@@ -31,8 +35,10 @@ public interface ExpenseRepository extends JpaRepository<ExpenseEntity, Long> {
     );
 
     //select * from expenses where profile_id = ?1 and date between ?2 and ?3
+    @EntityGraph(attributePaths = {"category", "profile"})
     List<ExpenseEntity> findByProfileIdAndDateBetween(Long profileId, LocalDate startDate, LocalDate endDate);
 
     //select * from expenses where profile_id = ?1 and date = ?2
+    @EntityGraph(attributePaths = {"category", "profile"})
     List<ExpenseEntity> findByProfileIdAndDate(Long profileId, LocalDate date);
 }
