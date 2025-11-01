@@ -1,8 +1,6 @@
-// export const BASE_URL = "https://budgetbee-3qeg.onrender.com";
-// //export const BASE_URL = "http://localhost:8080";
-// const CLOUDINARY_CLOUD_NAME = "dayum7f4k";
-export const BASE_URL = import.meta.env.VITE_API_BASE_URL || "https://budgetbee-3qeg.onrender.com";
-const CLOUDINARY_CLOUD_NAME = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME || "dayum7f4k";
+export const BASE_URL = "https://budgetbee-3qeg.onrender.com";
+//export const BASE_URL = "http://localhost:8080";
+const CLOUDINARY_CLOUD_NAME = "dayum7f4k";
 
 export const API_ENDPOINTS = {
   LOGIN: "/login",
