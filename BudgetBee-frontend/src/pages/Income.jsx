@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import Dashboard from "../components/Dashboard.jsx";
-import { useUser } from "../hooks/useUser.jsx";
+import { AppContext } from "../context/AppContext.jsx";
 import AxiosConfig from "../util/AxiosConfig.jsx";
 import toast from "react-hot-toast";
 import IncomeList from "../components/IncomeList.jsx";
@@ -9,9 +9,11 @@ import Modal from "../components/Modal.jsx";
 import AddIncomeForm from "../components/AddIncomeForm.jsx";
 import DeleteAlert from "../components/DeleteAlert.jsx";
 import IncomeOverview from "../components/IncomeOverview.jsx";
+import { TrendingUp, Wallet, BarChart3, LoaderCircle } from "lucide-react";
+import { addThousandsSeparator } from "../util/util.js";
 
 const Income = () => {
-  useUser();
+  const { user } = useContext(AppContext);
   const [incomeData, setIncomeData] = useState([]);
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(false);
@@ -26,13 +28,17 @@ const Income = () => {
     if (loading) return;
     setLoading(true);
     try {
-      //api call to fetch income details
+      console.log("🔍 Fetching income details...");
       const response = await AxiosConfig.get(API_ENDPOINTS.GET_ALL_INCOMES);
+      console.log("✅ Income Response:", response);
+      console.log("📊 Income Data:", response.data);
       if (response.status === 200) {
         setIncomeData(response.data);
+        console.log("💾 Income data set:", response.data);
       }
     } catch (error) {
-      console.error("Error fetching income details:", error);
+      console.error("❌ Error fetching income details:", error);
+      console.error("Error response:", error.response);
       toast.error(
         error.response?.data?.message || "Failed to fetch income details."
       );
@@ -47,7 +53,6 @@ const Income = () => {
         API_ENDPOINTS.GET_ALL_CATEGORIES_BY_TYPE("income")
       );
       if (response.status === 200) {
-        console.log("income categories", response.data);
         setCategories(response.data);
       }
     } catch (error) {
@@ -114,7 +119,7 @@ const Income = () => {
       );
       if (response.status === 200 || response.status === 204) {
         toast.success("Income deleted successfully");
-        await fetchIncomeDetails(); // ensure data reloads before close
+        await fetchIncomeDetails();
         setOpenDeleteAlert({ show: false, data: null });
       }
     } catch (error) {
@@ -160,53 +165,133 @@ const Income = () => {
   };
 
   useEffect(() => {
-    fetchIncomeDetails();
-    fetchIncomeCategories();
-  }, []);
+    if (user) {
+      console.log("👤 User loaded:", user);
+      console.log("🔑 Token:", localStorage.getItem("token"));
+      fetchIncomeDetails();
+      fetchIncomeCategories();
+    }
+  }, [user]);
+
+  // Show loading state while user is being fetched
+  if (!user) {
+    return (
+      <Dashboard activeMenu="Income">
+        <div className="flex justify-center items-center min-h-screen">
+          <LoaderCircle className="h-8 w-8 animate-spin text-purple-400" />
+        </div>
+      </Dashboard>
+    );
+  }
+
+  // Calculate statistics
+  const totalIncome = incomeData.reduce(
+    (sum, income) => sum + Number(income.amount),
+    0
+  );
+  const avgIncome = incomeData.length > 0 ? totalIncome / incomeData.length : 0;
+  const highestIncome =
+    incomeData.length > 0
+      ? Math.max(...incomeData.map((i) => Number(i.amount)))
+      : 0;
 
   return (
     <Dashboard activeMenu="Income">
-      <div className="my-5 mx-auto">
-        <div className="grid grid-cols gap-6">
-          <div>
-            {/* Overview of income with line chart */}
-            <IncomeOverview
-              transactions={incomeData}
-              onAddIncome={() => setOpenAddIncomeModal(true)}
-            />
-          </div>
-          <IncomeList
-            transactions={incomeData}
-            onDelete={(id) => setOpenDeleteAlert({ show: true, data: id })}
-            onDownload={handleDownloadIncomeDetails}
-            onEmail={handleEmailIncomeDetails}
-          />
-          {/* Add income modal */}
-          <Modal
-            isOpen={openAddIncomeModal}
-            onClose={() => setOpenAddIncomeModal(false)}
-            title="Add Income"
-          >
-            <AddIncomeForm
-              onAddIncome={(income) => handleAddIncome(income)}
-              categories={categories}
-            />
-          </Modal>
-          {/* Add Income Modal */}
-          <Modal
-            isOpen={openDeleteAlert.show}
-            onClose={() => setOpenDeleteAlert({ show: false, data: null })}
-            title="Delete Income"
-          >
-            <DeleteAlert
-              content="Are you sure you want to delete this income?"
-              onDelete={() => handleDeleteIncome(openDeleteAlert.data)}
-              onClose={() => setOpenDeleteAlert({ show: false, data: null })}
-            />
-          </Modal>
+      <div className="my-8 mx-auto space-y-6">
+        {/* Header Section */}
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-white page-heading mb-2">
+            Income Management
+          </h2>
+          <p className="text-slate-400">
+            Track your earnings, analyze income patterns, and stay on top of
+            your financial growth with powerful insights and analytics.
+          </p>
         </div>
+
+        {/* Statistics Cards */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-6">
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center border border-green-500/30">
+                <Wallet className="text-green-400" size={24} />
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-white mb-1">
+              ₹{addThousandsSeparator(totalIncome.toFixed(0))}
+            </p>
+            <p className="text-sm text-slate-400">Total Income</p>
+            <p className="text-xs text-green-400 mt-2">All-time earnings</p>
+          </div>
+
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-blue-500/20 to-cyan-500/20 flex items-center justify-center border border-blue-500/30">
+                <TrendingUp className="text-blue-400" size={24} />
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-white mb-1">
+              ₹{addThousandsSeparator(avgIncome.toFixed(0))}
+            </p>
+            <p className="text-sm text-slate-400">Average Income</p>
+            <p className="text-xs text-blue-400 mt-2">Per transaction</p>
+          </div>
+
+          <div className="card p-6">
+            <div className="flex items-center justify-between mb-3">
+              <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center border border-purple-500/30">
+                <BarChart3 className="text-purple-400" size={24} />
+              </div>
+            </div>
+            <p className="text-2xl font-bold text-white mb-1">
+              ₹{addThousandsSeparator(highestIncome.toFixed(0))}
+            </p>
+            <p className="text-sm text-slate-400">Highest Income</p>
+            <p className="text-xs text-purple-400 mt-2">Single transaction</p>
+          </div>
+        </div>
+
+        {/* Income Overview Chart */}
+        <IncomeOverview
+          transactions={incomeData}
+          onAddIncome={() => setOpenAddIncomeModal(true)}
+        />
+
+        {/* Income List */}
+        <IncomeList
+          transactions={incomeData}
+          onDelete={(id) => setOpenDeleteAlert({ show: true, data: id })}
+          onDownload={handleDownloadIncomeDetails}
+          onEmail={handleEmailIncomeDetails}
+        />
+
+        {/* Add income modal */}
+        <Modal
+          isOpen={openAddIncomeModal}
+          onClose={() => setOpenAddIncomeModal(false)}
+          title="Add New Income"
+        >
+          <AddIncomeForm
+            onAddIncome={(income) => handleAddIncome(income)}
+            categories={categories}
+          />
+        </Modal>
+
+        {/* Delete Alert Modal */}
+        <Modal
+          isOpen={openDeleteAlert.show}
+          onClose={() => setOpenDeleteAlert({ show: false, data: null })}
+          title="Delete Income"
+        >
+          <DeleteAlert
+            content="Are you sure you want to delete this income? This action cannot be undone and will permanently remove this record from your financial history."
+            onDelete={() => handleDeleteIncome(openDeleteAlert.data)}
+            onClose={() => setOpenDeleteAlert({ show: false, data: null })}
+          />
+        </Modal>
       </div>
     </Dashboard>
   );
 };
+
 export default Income;

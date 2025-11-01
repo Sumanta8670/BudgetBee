@@ -24,10 +24,9 @@ const AddExpenseForm = ({ onAddExpense, categories }) => {
   };
 
   const handleAddExpense = async () => {
-    // Removed parameter, use state variable
     setLoading(true);
     try {
-      await onAddExpense(expense); // Fixed: actually calling the function with expense
+      await onAddExpense(expense);
       // Reset form after successful submission
       setExpense({
         name: "",
@@ -40,22 +39,32 @@ const AddExpenseForm = ({ onAddExpense, categories }) => {
       setLoading(false);
     }
   };
+
   useEffect(() => {
     if (categories.length > 0 && !expense.categoryId) {
       setExpense((prev) => ({ ...prev, categoryId: categories[0].id }));
     }
   }, [categories]);
+
   return (
-    <div>
+    <div className="p-2">
+      <div className="mb-6">
+        <p className="text-sm text-slate-400">
+          Track your expenses to maintain better control over your spending and
+          identify areas for savings
+        </p>
+      </div>
+
       <EmojiPickerPopup
         icon={expense.icon}
         onSelect={(selectedIcon) => handleChange("icon", selectedIcon)}
       />
+
       <Input
         value={expense.name}
         onChange={({ target }) => handleChange("name", target.value)}
         label="Expense Source"
-        placeholder="e.g., Salary, Freelance, Bonus"
+        placeholder="e.g., Groceries, Rent, Transportation"
         type="text"
       />
 
@@ -70,8 +79,8 @@ const AddExpenseForm = ({ onAddExpense, categories }) => {
       <Input
         value={expense.amount}
         onChange={({ target }) => handleChange("amount", target.value)}
-        label="Amount"
-        placeholder="e.g., 500"
+        label="Amount (₹)"
+        placeholder="e.g., 5000"
         type="number"
       />
 
@@ -82,19 +91,20 @@ const AddExpenseForm = ({ onAddExpense, categories }) => {
         placeholder=""
         type="date"
       />
-      <div className="flex justify-end mt-6">
+
+      <div className="flex justify-end mt-8 pt-4 border-t border-slate-700/50">
         <button
-          onClick={handleAddExpense} // Fixed: not calling immediately
+          onClick={handleAddExpense}
           disabled={loading}
-          className="add-btn add-btn-fill"
+          className="add-btn add-btn-fill px-6 py-3"
         >
           {loading ? (
-            <>
+            <div className="flex items-center gap-2">
               <LoaderCircle className="w-4 h-4 animate-spin" />
-              Adding...
-            </>
+              <span>Adding...</span>
+            </div>
           ) : (
-            <>Add Expense</>
+            <span>Add Expense</span>
           )}
         </button>
       </div>

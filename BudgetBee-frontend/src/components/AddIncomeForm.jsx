@@ -24,10 +24,9 @@ const AddIncomeForm = ({ onAddIncome, categories }) => {
   };
 
   const handleAddIncome = async () => {
-    // Removed parameter, use state variable
     setLoading(true);
     try {
-      await onAddIncome(income); // Fixed: actually calling the function with income
+      await onAddIncome(income);
       // Reset form after successful submission
       setIncome({
         name: "",
@@ -41,19 +40,26 @@ const AddIncomeForm = ({ onAddIncome, categories }) => {
     }
   };
 
-  // Fixed: Set default category only once when categories are loaded
   useEffect(() => {
     if (categories.length > 0 && !income.categoryId) {
       setIncome((prev) => ({ ...prev, categoryId: categories[0].id }));
     }
-  }, [categories]); // Removed income.categoryId from dependencies
+  }, [categories]);
 
   return (
-    <div>
+    <div className="p-2">
+      <div className="mb-6">
+        <p className="text-sm text-slate-400">
+          Record your income to track your earnings and analyze your financial
+          growth over time
+        </p>
+      </div>
+
       <EmojiPickerPopup
         icon={income.icon}
         onSelect={(selectedIcon) => handleChange("icon", selectedIcon)}
       />
+
       <Input
         value={income.name}
         onChange={({ target }) => handleChange("name", target.value)}
@@ -73,8 +79,8 @@ const AddIncomeForm = ({ onAddIncome, categories }) => {
       <Input
         value={income.amount}
         onChange={({ target }) => handleChange("amount", target.value)}
-        label="Amount"
-        placeholder="e.g., 500"
+        label="Amount (₹)"
+        placeholder="e.g., 50000"
         type="number"
       />
 
@@ -85,23 +91,25 @@ const AddIncomeForm = ({ onAddIncome, categories }) => {
         placeholder=""
         type="date"
       />
-      <div className="flex justify-end mt-6">
+
+      <div className="flex justify-end mt-8 pt-4 border-t border-slate-700/50">
         <button
-          onClick={handleAddIncome} // Fixed: not calling immediately
+          onClick={handleAddIncome}
           disabled={loading}
-          className="add-btn add-btn-fill"
+          className="add-btn add-btn-fill px-6 py-3"
         >
           {loading ? (
-            <>
+            <div className="flex items-center gap-2">
               <LoaderCircle className="w-4 h-4 animate-spin" />
-              Adding...
-            </>
+              <span>Adding...</span>
+            </div>
           ) : (
-            <>Add Income</>
+            <span>Add Income</span>
           )}
         </button>
       </div>
     </div>
   );
 };
+
 export default AddIncomeForm;

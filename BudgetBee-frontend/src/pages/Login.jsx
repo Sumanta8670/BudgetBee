@@ -5,8 +5,10 @@ import AxiosConfig from "../util/AxiosConfig.jsx";
 import { API_ENDPOINTS } from "../util/apiEndpoints.js";
 import { validateEmail } from "../util/validation.js";
 import { toast } from "react-hot-toast";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, TrendingUp, Shield } from "lucide-react";
 import { AppContext } from "../context/AppContext.jsx";
+import logo from "../assets/logo.png";
+import Menubar from "../components/Menubar.jsx";
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -22,7 +24,6 @@ const Login = () => {
     setIsLoading(true);
     setError(null);
 
-    // Basic validation - Check email FIRST
     if (!email || !email.trim()) {
       setError("Email cannot be empty.");
       setIsLoading(false);
@@ -47,27 +48,23 @@ const Login = () => {
       return;
     }
 
-    // Login api call
     try {
       const response = await AxiosConfig.post(API_ENDPOINTS.LOGIN, {
         email,
         password,
       });
 
-      // Check if response is successful (200 or 201)
       if (response.status === 200 || response.status === 201) {
         const { token, user } = response.data;
 
         if (token && user) {
-          // Save token and user to local storage
           localStorage.setItem("token", token);
           localStorage.setItem("user", JSON.stringify(user));
-
-          // Update context
           setUser(user);
-
           toast.success("Login successful!");
-          navigate("/dashboard");
+          setTimeout(() => {
+            navigate("/dashboard", { replace: true });
+          }, 100);
         } else {
           setError("Login response is incomplete. Please try again.");
         }
@@ -78,7 +75,6 @@ const Login = () => {
       console.error("Login error:", error);
 
       if (error.response) {
-        // Server responded with error
         if (error.response.status === 400 || error.response.status === 401) {
           setError(
             error.response.data?.message || "Invalid email or password."
@@ -91,10 +87,8 @@ const Login = () => {
           setError("An error occurred. Please try again.");
         }
       } else if (error.request) {
-        // Request made but no response
         setError("Network error. Please check your connection.");
       } else {
-        // Something else happened
         setError("An unexpected error occurred.");
       }
     } finally {
@@ -103,67 +97,159 @@ const Login = () => {
   };
 
   return (
-    <div className="h-screen w-full relative flex items-center justify-center overflow-hidden">
-      {/*Background*/}
-      <div className="relative z-10 w-full max-w-lg px-6">
-        <div className="bg-white bg-opacity-95 backdrop-blur-sm rounded-lg shadow-2xl p-8 max-h-[90vh] overflow-y-auto">
-          <h3 className="text-2xl font-semibold text-black text-center mb-2">
-            Welcome Back to BudgetBee!
-          </h3>
-          <p className="text-sm text-slate-700 text-center mb-8">
-            Please login to your account to start managing your finances.
-          </p>
+    <div className="min-h-screen bg-gradient-to-br from-[#0f0f23] via-[#1a1a2e] to-[#16213e]">
+      {/* Menubar at top */}
+      <Menubar showSidebar={false} />
 
-          <form onSubmit={handleSubmit} className="space-y-4">
-            <Input
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              label="Email Address"
-              placeholder="name@example.com"
-              type="email"
-            />
+      {/* Login Content */}
+      <div className="flex items-center justify-center px-6 py-12">
+        <div className="w-full max-w-6xl grid lg:grid-cols-2 gap-12 items-center">
+          {/* Left Side - Branding */}
+          <div className="hidden lg:block space-y-8">
+            <div className="space-y-4">
+              <div className="flex items-center gap-3 mb-6">
+                <img
+                  src={logo}
+                  alt="BudgetBee Logo"
+                  className="w-14 h-14 logo-glow"
+                />
+                <h1 className="brand-logo text-4xl">BudgetBee</h1>
+              </div>
 
-            <Input
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              label="Password"
-              placeholder="Password"
-              type="password"
-            />
+              <h2 className="text-4xl lg:text-5xl font-bold text-white leading-tight">
+                Welcome Back to Your
+                <span className="block mt-2 bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                  Financial Command Center
+                </span>
+              </h2>
 
-            {error && (
-              <p className="text-red-800 text-sm text-center bg-red-50 p-2 rounded">
-                {error}
+              <p className="text-lg text-slate-400 max-w-md">
+                Take control of your finances with intelligent tracking,
+                insightful analytics, and seamless expense management.
               </p>
-            )}
+            </div>
 
-            <button
-              disabled={isLoading}
-              className={`btn-primary w-full py-3 text-lg font-medium flex items-center justify-center gap-2 ${
-                isLoading ? "opacity-70 cursor-not-allowed" : ""
-              }`}
-              type="submit"
-            >
-              {isLoading ? (
-                <>
-                  <LoaderCircle className="animate-spin w-5 h-5" />
-                  Logging in...
-                </>
-              ) : (
-                "Login"
-              )}
-            </button>
+            {/* Feature Pills */}
+            <div className="space-y-4">
+              <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-purple-500/10 to-transparent border border-purple-500/20">
+                <div className="w-10 h-10 rounded-lg bg-purple-500/20 flex items-center justify-center flex-shrink-0">
+                  <TrendingUp className="text-purple-400" size={20} />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">
+                    Smart Analytics
+                  </h3>
+                  <p className="text-sm text-slate-400">
+                    Track spending patterns and get personalized insights
+                  </p>
+                </div>
+              </div>
 
-            <p className="text-sm text-slate-700 text-center mt-6">
-              Don't have an account?{" "}
-              <Link
-                to="/register"
-                className="font-medium text-primary underline hover:text-primary-dark transition-colors"
-              >
-                Register
-              </Link>
-            </p>
-          </form>
+              <div className="flex items-start gap-4 p-4 rounded-xl bg-gradient-to-r from-blue-500/10 to-transparent border border-blue-500/20">
+                <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center flex-shrink-0">
+                  <Shield className="text-blue-400" size={20} />
+                </div>
+                <div>
+                  <h3 className="text-white font-semibold mb-1">
+                    Secure & Private
+                  </h3>
+                  <p className="text-sm text-slate-400">
+                    Bank-level encryption keeps your data safe
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            {/* Stats */}
+            <div className="flex gap-8 pt-4">
+              <div>
+                <div className="text-3xl font-bold text-white">10K+</div>
+                <div className="text-sm text-slate-400">Active Users</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-white">₹50M+</div>
+                <div className="text-sm text-slate-400">Tracked</div>
+              </div>
+              <div>
+                <div className="text-3xl font-bold text-white">99.9%</div>
+                <div className="text-sm text-slate-400">Uptime</div>
+              </div>
+            </div>
+          </div>
+
+          {/* Right Side - Login Form */}
+          <div className="w-full">
+            <div className="glass-card rounded-2xl p-8 lg:p-10">
+              {/* Mobile Logo */}
+              <div className="lg:hidden flex items-center justify-center gap-3 mb-6">
+                <img
+                  src={logo}
+                  alt="BudgetBee Logo"
+                  className="w-12 h-12 logo-glow"
+                />
+                <h1 className="brand-logo text-2xl">BudgetBee</h1>
+              </div>
+
+              <div className="mb-8">
+                <h3 className="text-3xl font-bold text-white mb-3">Sign In</h3>
+                <p className="text-slate-400">
+                  Enter your credentials to access your account and continue
+                  managing your finances.
+                </p>
+              </div>
+
+              <form onSubmit={handleSubmit} className="space-y-6">
+                <Input
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  label="Email Address"
+                  placeholder="name@example.com"
+                  type="email"
+                />
+
+                <Input
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  label="Password"
+                  placeholder="Enter your password"
+                  type="password"
+                />
+
+                {error && <div className="error-message">{error}</div>}
+
+                <button
+                  disabled={isLoading}
+                  className={`btn-primary w-full py-4 text-lg font-semibold flex items-center justify-center gap-2 ${
+                    isLoading ? "opacity-70 cursor-not-allowed" : ""
+                  }`}
+                  type="submit"
+                >
+                  {isLoading ? (
+                    <>
+                      <LoaderCircle className="animate-spin w-5 h-5" />
+                      Signing in...
+                    </>
+                  ) : (
+                    "Sign In"
+                  )}
+                </button>
+
+                <div className="flex items-center justify-center gap-1 text-sm pt-4">
+                  <span className="text-slate-400">New to BudgetBee?</span>
+                  <Link to="/register" className="link-primary font-semibold">
+                    Create an account
+                  </Link>
+                </div>
+
+                <div className="text-center pt-2">
+                  <p className="text-xs text-slate-500">
+                    By signing in, you agree to our Terms of Service and Privacy
+                    Policy
+                  </p>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       </div>
     </div>

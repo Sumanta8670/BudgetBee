@@ -21,8 +21,8 @@ const excludeEndpoints = [
 //request interceptor
 AxiosConfig.interceptors.request.use(
   (config) => {
-    const shouldSkipToken = excludeEndpoints.some(
-      (endpoint) => config.url?.includes(endpoint) // Added return statement
+    const shouldSkipToken = excludeEndpoints.some((endpoint) =>
+      config.url?.includes(endpoint)
     );
 
     if (!shouldSkipToken) {
@@ -38,15 +38,15 @@ AxiosConfig.interceptors.request.use(
   }
 );
 
-//response interceptor (if needed for token refresh, etc.)
+//response interceptor
 AxiosConfig.interceptors.response.use(
-  (response) => response, // Simply return successful responses
+  (response) => response,
   (error) => {
-    // Handle specific error cases here if needed
-    // For example, redirect to login on 401 Unauthorized
+    // Handle 401 Unauthorized - redirect to landing page
     if (error.response?.status === 401) {
       localStorage.removeItem("token");
-      window.location.href = "/login";
+      localStorage.removeItem("user");
+      window.location.href = "/";
     }
     return Promise.reject(error);
   }

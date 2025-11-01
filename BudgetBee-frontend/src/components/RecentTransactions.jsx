@@ -1,22 +1,39 @@
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Activity } from "lucide-react";
 import TransactionInfoCard from "./TransactionInfoCard.jsx";
 import moment from "moment";
 
 const RecentTransactions = ({ transactions, onMore }) => {
-  // Add null check
   if (!transactions || transactions.length === 0) {
     return (
-      <div className="card">
-        <div className="flex items-center justify-between">
-          <h4 className="text-lg">Recent Transactions</h4>
+      <div className="card p-6">
+        <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center border border-purple-500/30">
+              <Activity className="text-purple-400" size={20} />
+            </div>
+            <div>
+              <h4 className="text-xl font-bold text-white">Recent Activity</h4>
+              <p className="text-xs text-slate-400">
+                Latest financial movements
+              </p>
+            </div>
+          </div>
           <button className="card-btn" onClick={onMore}>
-            More <ArrowRight className="text-base" size={15} />
+            <span className="hidden sm:inline">View All</span>
+            <ArrowRight size={16} />
           </button>
         </div>
-        <div className="mt-6 text-center py-8">
-          <p className="text-gray-500 text-sm">No transactions yet</p>
-          <p className="text-gray-400 text-xs mt-1">
-            Your recent transactions will appear here
+
+        <div className="empty-state py-8">
+          <div className="empty-state-icon">
+            <Activity className="text-purple-400" size={40} />
+          </div>
+          <h3 className="text-lg font-semibold text-white mb-2">
+            No Recent Activity
+          </h3>
+          <p className="text-slate-400 max-w-md mx-auto">
+            Your recent transactions will appear here once you start adding
+            income or expenses
           </p>
         </div>
       </div>
@@ -24,17 +41,29 @@ const RecentTransactions = ({ transactions, onMore }) => {
   }
 
   return (
-    <div className="card">
-      <div className="flex items-center justify-between">
-        <h4 className="text-lg">Recent Transactions</h4>
+    <div className="card p-6">
+      <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center gap-3">
+          <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center border border-purple-500/30">
+            <Activity className="text-purple-400" size={20} />
+          </div>
+          <div>
+            <h4 className="text-xl font-bold text-white">Recent Activity</h4>
+            <p className="text-xs text-slate-400">
+              Last {transactions.length} transactions
+            </p>
+          </div>
+        </div>
         <button className="card-btn" onClick={onMore}>
-          More <ArrowRight className="text-base" size={15} />
+          <span className="hidden sm:inline">View All</span>
+          <ArrowRight size={16} />
         </button>
       </div>
-      <div className="mt-6">
+
+      <div className="space-y-2">
         {transactions.slice(0, 5).map((item, index) => (
           <TransactionInfoCard
-            key={`${item.type}-${item.id}-${index}`} // Fixed: unique key
+            key={`${item.type}-${item.id}-${index}`}
             title={item.name}
             icon={item.icon}
             date={moment(item.date).format("Do MMM YYYY")}

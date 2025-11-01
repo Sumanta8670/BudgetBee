@@ -1,4 +1,4 @@
-import { Plus } from "lucide-react";
+import { Plus, Sparkles } from "lucide-react";
 import Dashboard from "../components/Dashboard.jsx";
 import { useUser } from "../hooks/useUser.jsx";
 import CategoryList from "../components/CategoryList.jsx";
@@ -90,10 +90,9 @@ const Category = () => {
       return;
     }
 
-    // Check for duplicate category name (excluding the current category being edited)
     const isDuplicate = categoryData.some((category) => {
       return (
-        category.id !== id && // Exclude the current category being edited
+        category.id !== id &&
         category.name.toLowerCase() === name.trim().toLowerCase() &&
         category.type === type
       );
@@ -127,34 +126,89 @@ const Category = () => {
 
   return (
     <Dashboard activeMenu="Category">
-      <div className="my-5 mx-auto">
-        {/*Add button to add category */}
-        <div className="flex justify-between items-center mb-5">
-          <h2 className="text-2xl font-semibold">All Categories</h2>
+      <div className="my-8 mx-auto">
+        {/* Header Section */}
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+          <div>
+            <h2 className="text-3xl font-bold text-white page-heading mb-2">
+              Category Management
+            </h2>
+            <p className="text-slate-400 text-sm">
+              Organize your transactions with custom categories for better
+              financial insights
+            </p>
+          </div>
           <button
             onClick={() => setOpenAddCategoryModal(true)}
-            className="add-btn flex items-center gap-1"
+            className="add-btn flex items-center gap-2 whitespace-nowrap"
           >
-            <Plus size={15} />
+            <Plus size={18} />
             Add Category
           </button>
         </div>
-        {/*Category list */}
+
+        {/* Stats Overview */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+          <div className="card p-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center">
+                <Sparkles className="text-purple-400" size={20} />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">
+                  {categoryData.length}
+                </p>
+                <p className="text-sm text-slate-400">Total Categories</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card p-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-green-500/20 to-emerald-500/20 flex items-center justify-center">
+                <Plus className="text-green-400" size={20} />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">
+                  {categoryData.filter((c) => c.type === "income").length}
+                </p>
+                <p className="text-sm text-slate-400">Income Categories</p>
+              </div>
+            </div>
+          </div>
+
+          <div className="card p-5">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-red-500/20 to-pink-500/20 flex items-center justify-center">
+                <Plus className="text-red-400" size={20} />
+              </div>
+              <div>
+                <p className="text-2xl font-bold text-white">
+                  {categoryData.filter((c) => c.type === "expense").length}
+                </p>
+                <p className="text-sm text-slate-400">Expense Categories</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* Category List */}
         <CategoryList
           categories={categoryData}
           onEditCategory={handleEditCategory}
+          loading={loading}
         />
 
-        {/*Adding category modal */}
+        {/* Adding category modal */}
         <Modal
           isOpen={openAddCategoryModal}
           onClose={() => setOpenAddCategoryModal(false)}
-          title="Add Category"
+          title="Add New Category"
         >
           <AddCategoryForm onAddCategory={handleAddCategory} />
         </Modal>
 
-        {/*Updating category modal */}
+        {/* Updating category modal */}
         <Modal
           onClose={() => {
             setOpenUpdateCategoryModal(false);
@@ -173,4 +227,5 @@ const Category = () => {
     </Dashboard>
   );
 };
+
 export default Category;

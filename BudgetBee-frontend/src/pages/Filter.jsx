@@ -1,4 +1,4 @@
-import { Search } from "lucide-react";
+import { Search, Filter as FilterIcon, Loader2 } from "lucide-react";
 import Dashboard from "../components/Dashboard.jsx";
 import { useUser } from "../hooks/useUser.jsx";
 import { useState } from "react";
@@ -10,12 +10,12 @@ import moment from "moment";
 
 const Filter = () => {
   useUser();
-  const [type, setType] = useState("income"); // Set default
+  const [type, setType] = useState("income");
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [keyword, setKeyword] = useState("");
-  const [sortField, setSortField] = useState("date"); // Set default
-  const [sortOrder, setSortOrder] = useState("desc"); // Set default
+  const [sortField, setSortField] = useState("date");
+  const [sortOrder, setSortOrder] = useState("desc");
   const [transactions, setTransactions] = useState([]);
   const [loading, setLoading] = useState(false);
 
@@ -23,7 +23,6 @@ const Filter = () => {
     e.preventDefault();
     setLoading(true);
     try {
-      //api call to fetch transactions
       const response = await AxiosConfig.post(API_ENDPOINTS.APPLY_FILTER, {
         type,
         startDate,
@@ -33,8 +32,8 @@ const Filter = () => {
         sortOrder,
       });
       if (response.status === 200) {
-        console.log("transactions", response.data);
         setTransactions(response.data);
+        toast.success(`Found ${response.data.length} transactions`);
       }
     } catch (error) {
       console.error("Error fetching transactions:", error);
@@ -48,145 +47,169 @@ const Filter = () => {
 
   return (
     <Dashboard activeMenu="Filter">
-      <div className="my-5 mx-auto">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-2xl font-semibold">Filter Transaction</h2>
+      <div className="my-8 mx-auto space-y-6">
+        <div className="mb-8">
+          <h2 className="text-3xl font-bold text-white page-heading mb-2">
+            Advanced Filters
+          </h2>
+          <p className="text-slate-400">
+            Search and filter your transactions with powerful criteria to find
+            exactly what you're looking for
+          </p>
         </div>
-        <div className="card p-4 mb-4">
-          <div className="flex items-center justify-between mb-4">
-            <h5 className="text-lg font-semibold">Select the Filter</h5>
-          </div>
-          <form className="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-6 gap-4">
+
+        {/* Filter Form */}
+        <div className="card p-6">
+          <div className="flex items-center gap-3 mb-6">
+            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center border border-purple-500/30">
+              <FilterIcon className="text-purple-400" size={20} />
+            </div>
             <div>
-              <label htmlFor="type" className="block text-sm font-medium mb-1">
-                Type
-              </label>
+              <h5 className="text-xl font-bold text-white">Filter Criteria</h5>
+              <p className="text-xs text-slate-400">
+                Customize your search with multiple parameters
+              </p>
+            </div>
+          </div>
+
+          <form
+            onSubmit={handleSearch}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"
+          >
+            <div>
+              <label className="label-animated">Transaction Type</label>
               <select
                 value={type}
                 onChange={(e) => setType(e.target.value)}
-                id="type"
-                className="w-full border rounded px-3 py-2"
+                className="input-dark w-full rounded-lg py-3 px-4 text-base"
               >
-                <option value="">Select Type</option> {/* Add default option */}
-                <option value="income">Income</option> {/* Fixed */}
-                <option value="expense">Expense</option> {/* Fixed */}
+                <option value="income">Income</option>
+                <option value="expense">Expense</option>
               </select>
             </div>
+
             <div>
-              <label
-                htmlFor="StartDate"
-                className="block text-sm font-medium mb-1"
-              >
-                Start Date
-              </label>
+              <label className="label-animated">Start Date</label>
               <input
                 value={startDate}
                 onChange={(e) => setStartDate(e.target.value)}
                 type="date"
-                id="StartDate"
-                className="w-full border rounded px-3 py-2"
+                className="input-dark w-full rounded-lg py-3 px-4 text-base"
               />
             </div>
+
             <div>
-              <label
-                htmlFor="EndDate"
-                className="block text-sm font-medium mb-1"
-              >
-                End Date
-              </label>
+              <label className="label-animated">End Date</label>
               <input
                 value={endDate}
                 onChange={(e) => setEndDate(e.target.value)}
                 type="date"
-                id="EndDate"
-                className="w-full border rounded px-3 py-2"
+                className="input-dark w-full rounded-lg py-3 px-4 text-base"
               />
             </div>
+
             <div>
-              <label
-                htmlFor="sortfield"
-                className="block text-sm font-medium mb-1"
-              >
-                Sort By
-              </label>
+              <label className="label-animated">Sort By</label>
               <select
                 value={sortField}
                 onChange={(e) => setSortField(e.target.value)}
-                id="sortfield"
-                className="w-full border rounded px-3 py-2"
+                className="input-dark w-full rounded-lg py-3 px-4 text-base"
               >
                 <option value="date">Date</option>
                 <option value="amount">Amount</option>
               </select>
             </div>
+
             <div>
-              <label
-                htmlFor="sortorder"
-                className="block text-sm font-medium mb-1"
-              >
-                Sort Order
-              </label>
+              <label className="label-animated">Sort Order</label>
               <select
                 value={sortOrder}
                 onChange={(e) => setSortOrder(e.target.value)}
-                id="sortorder"
-                className="w-full border rounded px-3 py-2"
+                className="input-dark w-full rounded-lg py-3 px-4 text-base"
               >
                 <option value="asc">Ascending</option>
                 <option value="desc">Descending</option>
               </select>
             </div>
-            <div className="sm:col-span-1 md:col-span-1 flex items-end">
-              <div className="w-full">
-                <label
-                  htmlFor="keyword"
-                  className="block text-sm font-medium mb-1"
-                >
-                  Search
-                </label>
+
+            <div>
+              <label className="label-animated">Search Keyword</label>
+              <div className="flex gap-2">
                 <input
                   value={keyword}
                   onChange={(e) => setKeyword(e.target.value)}
-                  id="keyword"
                   type="text"
-                  placeholder="Search..."
-                  className="w-full border rounded px-3 py-2"
+                  placeholder="Search transactions..."
+                  className="input-dark flex-1 rounded-lg py-3 px-4 text-base"
                 />
+                <button
+                  type="submit"
+                  disabled={loading}
+                  className="add-btn add-btn-fill px-4"
+                >
+                  {loading ? (
+                    <Loader2 className="animate-spin" size={20} />
+                  ) : (
+                    <Search size={20} />
+                  )}
+                </button>
               </div>
-              <button
-                onClick={handleSearch}
-                className="ml-2 mb-1 p-2 bg-purple-800 hover:bg-purple-800 text-white rounded flex items-center justify-center cursor-pointer"
-              >
-                <Search size={25} />
-              </button>
             </div>
           </form>
         </div>
-        <div className="card p-4">
-          <div className="flex justify-between items-center mb-4">
-            <h5 className="text-lg font-semibold">Transaction</h5>
+
+        {/* Results */}
+        <div className="card p-6">
+          <div className="flex items-center justify-between mb-6">
+            <div>
+              <h5 className="text-xl font-bold text-white">Search Results</h5>
+              <p className="text-xs text-slate-400">
+                {transactions.length > 0
+                  ? `Found ${transactions.length} ${
+                      transactions.length === 1 ? "transaction" : "transactions"
+                    }`
+                  : "No transactions found"}
+              </p>
+            </div>
           </div>
-          {transactions.length === 0 && !loading ? (
-            <p className="text-gray-600">
-              Select the filter and click apply to filter the transactions.
-            </p>
+
+          {loading ? (
+            <div className="empty-state py-12">
+              <Loader2 className="animate-spin text-purple-400 w-12 h-12 mb-4" />
+              <p className="text-slate-400">Searching transactions...</p>
+            </div>
+          ) : transactions.length === 0 ? (
+            <div className="empty-state py-12">
+              <div className="empty-state-icon">
+                <Search className="text-purple-400" size={40} />
+              </div>
+              <h3 className="text-lg font-semibold text-white mb-2">
+                No Results Found
+              </h3>
+              <p className="text-slate-400 max-w-md mx-auto">
+                Try adjusting your filter criteria or search terms to find
+                matching transactions
+              </p>
+            </div>
           ) : (
-            ""
+            <div className="space-y-2">
+              {transactions.map((transaction) => (
+                <TransactionInfoCard
+                  key={transaction.id}
+                  title={transaction.name}
+                  icon={transaction.icon}
+                  date={moment(transaction.date).format("DD MMM, YYYY")}
+                  amount={transaction.amount}
+                  type={type}
+                  hideDeleteBtn
+                />
+              ))}
+            </div>
           )}
-          {transactions.map((transaction) => (
-            <TransactionInfoCard
-              key={transaction.id}
-              title={transaction.name}
-              icon={transaction.icon}
-              date={moment(transaction.date).format("YYYY-MM-DD")} // Format the date to "YYYY-MM-DD" format before passing it to the TransactionInfoCard component.transaction.date}
-              amount={transaction.amount}
-              type={type}
-              hideDeleteBtn
-            />
-          ))}
         </div>
       </div>
     </Dashboard>
   );
 };
+
 export default Filter;

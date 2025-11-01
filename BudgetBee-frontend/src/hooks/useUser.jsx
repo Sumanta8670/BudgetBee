@@ -1,6 +1,8 @@
 import { useContext, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { AppContext } from "../context/AppContext.jsx";
+import AxiosConfig from "../util/AxiosConfig.jsx";
+import { API_ENDPOINTS } from "../util/apiEndpoints.js";
 
 export const useUser = () => {
   const { user, setUser, clearUser } = useContext(AppContext);
@@ -23,7 +25,7 @@ export const useUser = () => {
         console.log("Error fetching user info:", error);
         if (isMounted) {
           clearUser();
-          navigate("/login");
+          navigate("/");
         }
       }
     };
@@ -33,6 +35,7 @@ export const useUser = () => {
     return () => {
       isMounted = false;
     };
-  }, [user]); // Only depend on user, ignore the ESLint warning
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [user, setUser, clearUser, navigate]);
 };
+
+export default useUser;

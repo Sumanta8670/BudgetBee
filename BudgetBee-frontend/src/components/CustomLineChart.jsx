@@ -19,26 +19,24 @@ const CustomLineChart = ({ data }) => {
     if (active && payload && payload.length > 0) {
       const data = payload[0].payload;
       return (
-        <div className="bg-white px-4 py-3 rounded-lg shadow-lg border border-gray-200">
-          <p className="text-sm font-semibold text-gray-800 mb-2">
-            {data.month}
-          </p>
-          <p className="text-lg font-bold text-purple-600 mb-2">
+        <div className="modal-content rounded-xl px-4 py-3 shadow-2xl border border-purple-500/30">
+          <p className="text-sm font-semibold text-white mb-2">{data.month}</p>
+          <p className="text-lg font-bold text-purple-400 mb-2">
             Total: ₹{addThousandsSeparator(data.totalAmount)}
           </p>
           {data.items && data.items.length > 0 && (
-            <div className="mt-2 border-t pt-2">
-              <p className="text-xs text-gray-600 mb-1">Details:</p>
+            <div className="mt-2 border-t border-slate-700/50 pt-2">
+              <p className="text-xs text-slate-400 mb-1">Details:</p>
               {data.items.map((item, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-2 text-xs text-gray-700"
+                  className="flex items-center gap-2 text-xs text-slate-300 mb-1"
                 >
                   {item.icon && (
                     <img src={item.icon} alt={item.name} className="w-4 h-4" />
                   )}
                   <span>{item.name}:</span>
-                  <span className="font-semibold">
+                  <span className="font-semibold text-purple-400">
                     ₹{addThousandsSeparator(item.amount)}
                   </span>
                 </div>
@@ -79,8 +77,8 @@ const CustomLineChart = ({ data }) => {
 
   if (!data || data.length === 0) {
     return (
-      <div className="h-64 flex items-center justify-center text-gray-400">
-        <p>No income data available</p>
+      <div className="h-64 flex items-center justify-center">
+        <p className="text-slate-500">No data available</p>
       </div>
     );
   }
@@ -102,8 +100,8 @@ const CustomLineChart = ({ data }) => {
         >
           <defs>
             <linearGradient id="colorIncome" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.3} />
-              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0} />
+              <stop offset="5%" stopColor="#8b5cf6" stopOpacity={0.4} />
+              <stop offset="95%" stopColor="#8b5cf6" stopOpacity={0.05} />
             </linearGradient>
           </defs>
 
@@ -111,15 +109,15 @@ const CustomLineChart = ({ data }) => {
             dataKey="month"
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#9ca3af", fontSize: 12 }}
+            tick={{ fill: "#64748b", fontSize: 12 }}
             dy={10}
           />
 
           <YAxis
             axisLine={false}
             tickLine={false}
-            tick={{ fill: "#9ca3af", fontSize: 12 }}
-            tickFormatter={(value) => `${value / 1000}k`}
+            tick={{ fill: "#64748b", fontSize: 12 }}
+            tickFormatter={(value) => `₹${value / 1000}k`}
             dx={-10}
           />
 
@@ -127,7 +125,7 @@ const CustomLineChart = ({ data }) => {
             content={<CustomTooltip />}
             cursor={{
               stroke: "#8b5cf6",
-              strokeWidth: 1,
+              strokeWidth: 2,
               strokeDasharray: "5 5",
             }}
           />

@@ -1,21 +1,33 @@
 import { Eye, EyeOff } from "lucide-react";
 import { useState } from "react";
 
-const Input = ({ label, value, onChange, placeholder, type, isSelect, options }) => {
+const Input = ({
+  label,
+  value,
+  onChange,
+  placeholder,
+  type,
+  isSelect,
+  options,
+}) => {
   const [showPassword, setShowPassword] = useState(false);
+  const [isFocused, setIsFocused] = useState(false);
 
   const togglePasswordVisibility = () => {
     setShowPassword(!showPassword);
   };
+
   return (
     <div className="mb-4">
-      <label className="text-[13px] text-slate-800 block mb-1">{label}</label>
+      <label className="label-animated">{label}</label>
       <div className="relative">
         {isSelect ? (
           <select
-          className="w-full bg-transparent outline-none border-gray-300 rounded-md py-2 px-3 text-gray-700 leading focus:outline-none focus:border-blue-500"
-          value={value}
-          onChange={(e) => onChange(e)}
+            className="input-dark w-full rounded-lg py-3 px-4 text-base transition-all duration-300"
+            value={value}
+            onChange={(e) => onChange(e)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
           >
             {options.map((option) => (
               <option key={option.value} value={option.value}>
@@ -23,43 +35,31 @@ const Input = ({ label, value, onChange, placeholder, type, isSelect, options })
               </option>
             ))}
           </select>
-        ): (
+        ) : (
           <input
-          className="w-full 
-          bg-transparent 
-          outline-none 
-          border border-gray-300 
-          rounded-md py-2 px-3 pr-10 
-          text-gray-700 
-          leading-tight 
-          focus:outline-none focus:border-blue-500"
-          type={
-            type === "password" ? (showPassword ? "text" : "password") : type
-          }
-          value={value}
-          placeholder={placeholder}
-          onChange={(e) => onChange(e)}
-        />
+            className="input-dark w-full rounded-lg py-3 px-4 pr-12 text-base transition-all duration-300"
+            type={
+              type === "password" ? (showPassword ? "text" : "password") : type
+            }
+            value={value}
+            placeholder={placeholder}
+            onChange={(e) => onChange(e)}
+            onFocus={() => setIsFocused(true)}
+            onBlur={() => setIsFocused(false)}
+          />
         )}
         {type === "password" && (
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 cursor-pointer">
-            {showPassword ? (
-              <Eye
-                size={20}
-                className="text-purple-800"
-                onClick={togglePasswordVisibility}
-              />
-            ) : (
-              <EyeOff
-                size={20}
-                className="text-slate-400"
-                onClick={togglePasswordVisibility}
-              />
-            )}
-          </span>
+          <button
+            type="button"
+            onClick={togglePasswordVisibility}
+            className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-purple-400 transition-colors duration-200 focus:outline-none"
+          >
+            {showPassword ? <Eye size={20} /> : <EyeOff size={20} />}
+          </button>
         )}
       </div>
     </div>
   );
 };
+
 export default Input;

@@ -5,7 +5,7 @@ import { LogOut, Menu, User, X } from "lucide-react";
 import logo from "../assets/logo.png";
 import Sidebar from "./Sidebar.jsx";
 
-const Menubar = ({ activeMenu }) => {
+const Menubar = ({ activeMenu, showSidebar = true }) => {
   const [openSideMenu, setOpenSideMenu] = useState(false);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef(null);
@@ -13,10 +13,23 @@ const Menubar = ({ activeMenu }) => {
   const navigate = useNavigate();
 
   const handleLogout = () => {
+    console.log("🚀 Logout initiated");
+
+    // Clear all storage
     localStorage.clear();
+
+    // Clear user context
     clearUser();
+
+    // Close dropdown
     setShowDropdown(false);
-    navigate("/login");
+
+    console.log("✅ Storage and context cleared");
+
+    // Force redirect to landing page
+    setTimeout(() => {
+      window.location.href = "/";
+    }, 100);
   };
 
   useEffect(() => {
@@ -34,79 +47,161 @@ const Menubar = ({ activeMenu }) => {
   }, [showDropdown]);
 
   return (
-    <div className="flex items-center justify-between gap-5 bg-white border border-b border-gray-200/50 backdrop-blur-[2px] py-4 px-4 sm:px-7 sticky top-0 z-30">
-      {/* Left side - Menu button and title */}
-      <div className="flex items-center gap-5">
-        <button
-          onClick={() => setOpenSideMenu(!openSideMenu)}
-          className="block lg:hidden text-black hover:bg-gray-100 p-1 rounded transition-colors"
-        >
-          {openSideMenu ? (
-            <X className="text-2xl" />
-          ) : (
-            <Menu className="text-2xl" />
+    <>
+      <div className="menubar flex items-center justify-between gap-5 py-4 px-4 sm:px-7 sticky top-0 z-40">
+        {/* Left side - Menu button and title */}
+        <div className="flex items-center gap-5">
+          {/* Mobile menu button - only show if sidebar is enabled */}
+          {showSidebar && user && (
+            <button
+              onClick={() => setOpenSideMenu(!openSideMenu)}
+              className="block lg:hidden text-purple-400 hover:bg-purple-500/10 p-2 rounded-lg transition-all duration-300"
+            >
+              {openSideMenu ? (
+                <X className="text-2xl" />
+              ) : (
+                <Menu className="text-2xl" />
+              )}
+            </button>
           )}
-        </button>
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/dashboard")}>
-          <img src={logo} alt="logo" className="h-10 w-10" />
-          <span className="text-lg font-medium text-black truncate">
-            BudgetBee
-          </span>
-        </div>
-      </div>
 
-      {/* Right side - Avatar photo */}
-      {user && (
-        <div className="relative" ref={dropdownRef}>
-          <button
-            onClick={() => setShowDropdown(!showDropdown)}
-            className="flex items-center justify-center w-10 h-10 bg-gray-200 rounded-full transition-colors duration-200 focus:outline-none focus:ring-purple-800 focus:ring-offset-2"
+          {/* Logo - Always redirects to Landing Page */}
+          <div
+            className="flex items-center gap-3 cursor-pointer group"
+            onClick={() => navigate("/")}
           >
-            <User className="text-purple-500" />
+            <img
+              src={logo}
+              alt="BudgetBee Logo"
+              className="h-10 w-10 transition-transform duration-300 group-hover:scale-110 drop-shadow-[0_0_15px_rgba(139,92,246,0.6)]"
+            />
+            <span className="text-xl font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+              BudgetBee
+            </span>
+          </div>
+        </div>
+
+        {/* Right side - Navigation & User Avatar */}
+        <div className="flex items-center gap-4">
+          {/* Dashboard Button - Show only when logged in */}
+          {user && (
+            <button
+              onClick={() => navigate("/dashboard")}
+              className="text-slate-300 hover:text-white transition-colors text-sm font-medium hidden sm:block"
+            >
+              Dashboard
+            </button>
+          )}
+
+          {/* About Us Button - Always visible */}
+          <button
+            onClick={() => navigate("/about")}
+            className="text-slate-300 hover:text-white transition-colors text-sm font-medium hidden sm:block"
+          >
+            About Us
           </button>
 
-          {/* Dropdown menu */}
-          {showDropdown && (
-            <div className="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg border-gray-200 py-1 z-50">
-              {/* User info */}
-              <div className="px-4 py-3 border-b border-gray-100">
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center justify-center w-8 h-8 bg-gray-100 rounded-full">
-                    <User className="w-4 h-4 text-purple-600" />
+          {/* Show Login & Register if NOT logged in */}
+          {!user && (
+            <>
+              <button
+                onClick={() => navigate("/login")}
+                className="text-slate-300 hover:text-white transition-colors text-sm font-medium hidden sm:block"
+              >
+                Login
+              </button>
+              <button
+                onClick={() => navigate("/register")}
+                className="add-btn add-btn-fill px-4 py-2 text-sm"
+              >
+                Register
+              </button>
+            </>
+          )}
+
+          {/* Show User Avatar if logged in */}
+          {user && (
+            <div className="relative" ref={dropdownRef}>
+              <button
+                onClick={() => setShowDropdown(!showDropdown)}
+                className="flex items-center justify-center w-10 h-10 rounded-full transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 focus:ring-offset-[#1a1a2e] overflow-hidden border-2 border-purple-500/30 hover:border-purple-500/60"
+              >
+                {user?.profileImageUrl ? (
+                  <img
+                    src={user.profileImageUrl}
+                    alt={user.fullName}
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <div className="w-full h-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 flex items-center justify-center">
+                    <User className="text-purple-400" size={20} />
                   </div>
-                  <div className="flex-1 min-w-0">
-                    <p className="text-sm font-medium text-gray-800 truncate">
-                      {user.fullName}
-                    </p>
-                    <p className="text-xs text-gray-500 truncate">
-                      {user.email}
-                    </p>
+                )}
+              </button>
+
+              {/* Dropdown menu */}
+              {showDropdown && (
+                <div className="dropdown-menu absolute right-0 mt-3 w-56 rounded-xl py-2 z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+                  {/* User info */}
+                  <div className="px-4 py-3 border-b border-slate-700/50">
+                    <div className="flex items-center gap-3">
+                      <div className="flex items-center justify-center w-10 h-10 rounded-full bg-gradient-to-br from-purple-500/20 to-blue-500/20 border border-purple-500/30">
+                        {user?.profileImageUrl ? (
+                          <img
+                            src={user.profileImageUrl}
+                            alt={user.fullName}
+                            className="w-full h-full object-cover rounded-full"
+                          />
+                        ) : (
+                          <User className="w-5 h-5 text-purple-400" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="text-sm font-semibold text-white truncate">
+                          {user.fullName}
+                        </p>
+                        <p className="text-xs text-slate-400 truncate">
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Dropdown Options */}
+                  <div className="py-2">
+                    <button
+                      onClick={handleLogout}
+                      className="dropdown-item flex items-center gap-3 w-full px-4 py-2.5 text-sm"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </button>
                   </div>
                 </div>
-              </div>
-
-              {/* Dropdown Options */}
-              <div className="py-1">
-                <button
-                  onClick={handleLogout}
-                  className="flex items-center gap-3 w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 transition-colors duration-150"
-                >
-                  <LogOut className="w-4 h-4 text-gray-600" />
-                  <span>Logout</span>
-                </button>
-              </div>
+              )}
             </div>
           )}
         </div>
-      )}
+      </div>
 
-      {/* Mobile side menu */}
-      {openSideMenu && (
-        <div className="fixed left-0 right-0 bg-white border-b border-gray-200 lg:hidden z-20 top-[73px]">
-          <Sidebar activeMenu={activeMenu} />
+      {/* Mobile side menu - only show if sidebar is enabled */}
+      {showSidebar && openSideMenu && user && (
+        <div
+          className="fixed inset-0 bg-black/60 backdrop-blur-sm lg:hidden z-30 animate-in fade-in duration-200"
+          onClick={() => setOpenSideMenu(false)}
+        >
+          <div
+            className="fixed left-0 top-[73px] bottom-0 w-64 sidebar animate-in slide-in-from-left duration-300"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Sidebar
+              activeMenu={activeMenu}
+              onNavigate={() => setOpenSideMenu(false)}
+            />
+          </div>
         </div>
       )}
-    </div>
+    </>
   );
 };
 
